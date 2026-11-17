@@ -1,0 +1,6 @@
+{
+  "name": "BluePipe Plumbing Service",
+  "description": "Mobile-first Android-style plumbing service customer registration app connected to Firebase Authentication and Cloud Firestore.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
