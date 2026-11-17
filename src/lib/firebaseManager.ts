@@ -60,11 +60,19 @@ export function loadSavedConfig(): FirebaseClientConfig {
 }
 
 export function saveConfigToStorage(config: FirebaseClientConfig): void {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
+  } catch {
+    // Ignore storage errors in private/restricted browser contexts
+  }
 }
 
 export function clearConfigFromStorage(): void {
-  localStorage.removeItem(STORAGE_KEY);
+  try {
+    localStorage.removeItem(STORAGE_KEY);
+  } catch {
+    // Ignore storage errors in private/restricted browser contexts
+  }
 }
 
 export function isValidFirebaseConfig(
@@ -191,17 +199,15 @@ export async function initializeFirebaseServices(
     ? getFirestore(app, config.firestoreDatabaseId)
     : getFirestore(app);
 
-  // Verify connectivity on boot without blocking if rules deny /test/connection
-  try {
-    await getDocFromServer(doc(db, 'test', 'connection'));
-  } catch (error) {
+  // Verify connectivity in background without blocking initial UI render
+  void getDocFromServer(doc(db, 'test', 'connection')).catch((error) => {
     if (
       error instanceof Error &&
       error.message.toLowerCase().includes('the client is offline')
     ) {
       console.warn('Firestore offline check warning:', error.message);
     }
-  }
+  });
 
   activeServices = { app, auth, db, config };
   saveConfigToStorage(config);
